@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ============================================================
  * BLOQUE 1 — config/database.php
@@ -63,7 +64,7 @@ function getDB(): PDO
     );
 
     // ── 4. OPCIONES DE PDO ───────────────────────────────────
-    // Configuramos el comportamiento de PDO:
+    // Configuramos el comportamiento de PDO (Significa PHP Data Objects):
     $opciones = [
         // Lanza excepciones en lugar de errores silenciosos
         // SIEMPRE activar esto — sin esto los errores pasan desapercibidos
@@ -84,7 +85,6 @@ function getDB(): PDO
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $opciones);
         return $pdo;
-
     } catch (PDOException $e) {
         // ⚠️  IMPORTANTE: En producción NUNCA mostrar el mensaje
         // real del error — revela datos internos del servidor.
@@ -131,7 +131,6 @@ function testConnection(): void
             'base_de_datos'  => DB_NAME,
             'fecha_servidor' => $resultado['fecha_servidor'],
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
     } catch (PDOException $e) {
         echo json_encode([
             'estado' => '❌ Conexión fallida',
