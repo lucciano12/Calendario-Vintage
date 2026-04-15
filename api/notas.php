@@ -35,10 +35,10 @@
 // el dominio específico, no '*'.
 // ------------------------------------------------------------
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json; charset=utf-8'); // Siempre respondemos JSON con UTF-8 (soporta tildes y ñ)
+header('Access-Control-Allow-Origin: *'); // Permitir peticiones desde cualquier origen (CORS)
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS'); // Permitir estos métodos HTTP
+header('Access-Control-Allow-Headers: Content-Type'); // Permitir el header Content-Type (para JSON)
 
 // Cuando el navegador hace una petición PUT o DELETE,
 // primero envía un 'preflight' OPTIONS para preguntar si puede.
