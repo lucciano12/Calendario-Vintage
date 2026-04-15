@@ -1,0 +1,773 @@
+/* ============================================================
+   BLOQUE 3 — css/xp-style.css
+   ============================================================
+   ¿Qué hace este archivo?
+     Define TODO el aspecto visual del Calendario Vintage.
+     Emula fielmente la interfaz de Windows XP (Luna theme).
+
+   Conceptos CSS que aprenderás aquí:
+     - Variables CSS (custom properties)
+     - Box model: margin, padding, border
+     - Box-shadow para efecto biselado 3D
+     - Gradientes lineales
+     - Flexbox para layouts
+     - Pseudo-elementos ::before y ::after
+     - Selectores de estado :hover, :active, :focus
+     - CSS Reset básico
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   1. VARIABLES CSS (Custom Properties)
+   ------------------------------------------------------------
+   Las variables CSS permiten reutilizar valores en todo el
+   archivo. Si quieres cambiar el azul XP, solo cambias aquí
+   y se actualiza en todos lados automáticamente.
+   Se definen en :root para que sean globales.
+   ------------------------------------------------------------ */
+
+:root {
+  /* Colores principales Windows XP Luna (azul) */
+  --xp-blue-dark:    #0a246a;   /* Azul oscuro barra título */
+  --xp-blue-mid:     #2458a6;   /* Azul medio barra título */
+  --xp-blue-light:   #4d8fcc;   /* Azul claro barra título */
+  --xp-blue-btn:     #245edb;   /* Azul botón Inicio */
+
+  /* Colores de superficie (gris XP) */
+  --xp-bg:           #3a6ea5;   /* Fondo escritorio XP */
+  --xp-surface:      #ece9d8;   /* Superficie ventanas (beige XP) */
+  --xp-surface-dark: #d4d0c8;   /* Beige oscuro (bordes, toolbars) */
+  --xp-white:        #ffffff;
+
+  /* Efecto biselado 3D — el sello de XP */
+  /* Los botones XP parecen "levantados" gracias a 4 sombras: */
+  /* arriba-izquierda claras (luz) + abajo-derecha oscuras (sombra) */
+  --xp-bevel-out:                         /* Botón normal (saliente) */
+    inset  1px  1px 0 #ffffff,            /* borde superior izq blanco */
+    inset  2px  2px 0 #dfdfdf,            /* borde interior claro */
+    inset -1px -1px 0 #404040,            /* borde inferior der oscuro */
+    inset -2px -2px 0 #808080;            /* borde exterior oscuro */
+
+  --xp-bevel-in:                          /* Botón presionado (hundido) */
+    inset  1px  1px 0 #404040,
+    inset  2px  2px 0 #808080,
+    inset -1px -1px 0 #ffffff,
+    inset -2px -2px 0 #dfdfdf;
+
+  --xp-bevel-field:                       /* Input / campo de texto */
+    inset  1px  1px 0 #808080,
+    inset  2px  2px 0 #dfdfdf,
+    inset -1px -1px 0 #ffffff,
+    inset -2px -2px 0 #e0e0e0;
+
+  /* Tipografía XP */
+  --xp-font:        'Tahoma', 'Arial', sans-serif;
+  --xp-font-size:   11px;      /* Tamaño de fuente exacto de XP */
+  --xp-title-size:  12px;      /* Tamaño en barra de título */
+
+  /* Alturas estándar de elementos XP */
+  --xp-titlebar-h:  28px;
+  --xp-taskbar-h:   30px;
+  --xp-btn-h:       23px;
+}
+
+
+/* ------------------------------------------------------------
+   2. CSS RESET BÁSICO
+   ------------------------------------------------------------
+   Cada navegador tiene estilos por defecto distintos.
+   El reset los elimina para partir desde cero y que el
+   diseño sea igual en Chrome, Firefox, Edge, etc.
+   ------------------------------------------------------------ */
+
+*, *::before, *::after {
+  box-sizing: border-box;  /* padding y border incluidos en el ancho */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--xp-font);
+  font-size: var(--xp-font-size);
+  background-color: var(--xp-bg);  /* Fondo azul escritorio XP */
+  color: #000000;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: var(--xp-taskbar-h); /* espacio para taskbar */
+}
+
+
+/* ------------------------------------------------------------
+   3. VENTANA PRINCIPAL (Window)
+   ------------------------------------------------------------
+   La ventana XP tiene:
+   - Borde exterior oscuro
+   - Borde interior claro (biselado)
+   - Fondo gris beige (--xp-surface)
+   ------------------------------------------------------------ */
+
+.xp-window {
+  width: 900px;
+  max-width: 97vw;
+  height: 85vh;
+  background: var(--xp-surface);
+  border: 2px solid var(--xp-blue-dark);
+  border-radius: 8px 8px 0 0;  /* solo esquinas superiores redondeadas */
+  box-shadow:
+    2px 2px 8px rgba(0,0,0,0.5),   /* sombra exterior */
+    inset 1px 1px 0 #ffffff;        /* brillo interior arriba-izq */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
+/* ------------------------------------------------------------
+   4. BARRA DE TÍTULO (Titlebar)
+   ------------------------------------------------------------
+   El gradiente azul es el sello visual de Windows XP Luna.
+   Va de azul oscuro (izquierda) a azul claro (derecha).
+   ------------------------------------------------------------ */
+
+.xp-titlebar {
+  height: var(--xp-titlebar-h);
+  /* Gradiente horizontal: oscuro → medio → claro */
+  background: linear-gradient(
+    to right,
+    var(--xp-blue-dark) 0%,
+    var(--xp-blue-mid)  40%,
+    var(--xp-blue-light) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 0 8px;
+  border-radius: 6px 6px 0 0;
+  user-select: none; /* evita seleccionar texto al hacer clic */
+}
+
+.xp-titlebar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Icono pequeño en la barra de título */
+.xp-titlebar-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Texto del título de la ventana */
+.xp-titlebar-title {
+  color: #ffffff;
+  font-size: var(--xp-title-size);
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+
+/* ------------------------------------------------------------
+   5. BOTONES DE VENTANA (Minimizar, Maximizar, Cerrar)
+   ------------------------------------------------------------
+   Los botones XP tienen:
+   - Fondo degradado azul (igual que la titlebar)
+   - Borde biselado (--xp-bevel-out)
+   - El de cerrar es ROJO con highlight naranja
+   ------------------------------------------------------------ */
+
+.xp-window-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.xp-btn-control {
+  width: 21px;
+  height: 21px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
+  font-family: var(--xp-font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--xp-bevel-out);
+  transition: box-shadow 0.05s;
+}
+
+/* Minimizar y Maximizar: azul */
+.xp-btn-min, .xp-btn-max {
+  background: linear-gradient(to bottom, #5b9cf6, #2458a6);
+  color: #ffffff;
+}
+
+/* Cerrar: rojo con highlight naranja (icono de XP) */
+.xp-btn-close {
+  background: linear-gradient(to bottom, #e9a23b, #c0311b);
+  color: #ffffff;
+  font-size: 11px;
+}
+
+/* Al presionar cualquier botón de ventana: efecto hundido */
+.xp-btn-control:active {
+  box-shadow: var(--xp-bevel-in);
+}
+
+
+/* ------------------------------------------------------------
+   6. BARRA DE MENÚ (Menubar)
+   ------------------------------------------------------------
+   La barra de menú clásica con Archivo, Editar, Ver...
+   ------------------------------------------------------------ */
+
+.xp-menubar {
+  background: var(--xp-surface);
+  border-bottom: 1px solid var(--xp-surface-dark);
+  padding: 2px 4px;
+  display: flex;
+  gap: 2px;
+}
+
+.xp-menu-item {
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: var(--xp-font-size);
+  border: 1px solid transparent;
+}
+
+.xp-menu-item:hover {
+  background: var(--xp-blue-mid);
+  color: #ffffff;
+  border-color: var(--xp-blue-dark);
+}
+
+
+/* ------------------------------------------------------------
+   7. LAYOUT PRINCIPAL (dos columnas)
+   ------------------------------------------------------------
+   Panel izquierdo: lista de notas
+   Panel derecho: formulario de la nota
+   ------------------------------------------------------------ */
+
+.xp-content {
+  flex: 1;           /* ocupa todo el espacio disponible */
+  display: flex;
+  overflow: hidden;  /* evita scroll en el contenedor padre */
+}
+
+
+/* ------------------------------------------------------------
+   8. PANEL IZQUIERDO — Lista de notas
+   ------------------------------------------------------------ */
+
+.xp-sidebar {
+  width: 220px;
+  min-width: 180px;
+  background: var(--xp-white);
+  border-right: 2px solid var(--xp-surface-dark);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.xp-sidebar-header {
+  background: var(--xp-surface-dark);
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: var(--xp-font-size);
+  border-bottom: 1px solid #a0a0a0;
+}
+
+.xp-sidebar-search {
+  padding: 4px;
+  border-bottom: 1px solid var(--xp-surface-dark);
+}
+
+.xp-sidebar-search input {
+  width: 100%;
+  padding: 2px 4px;
+  font-family: var(--xp-font);
+  font-size: var(--xp-font-size);
+  box-shadow: var(--xp-bevel-field);
+  border: none;
+  background: var(--xp-white);
+}
+
+/* Lista de notas con scroll */
+.xp-notes-list {
+  flex: 1;
+  overflow-y: auto;  /* scroll vertical cuando hay muchas notas */
+  list-style: none;
+}
+
+/* Cada item de la lista */
+.xp-note-item {
+  padding: 5px 8px;
+  border-bottom: 1px solid #f0ede0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.xp-note-item:hover {
+  background: #316ac5;  /* azul XP de selección */
+  color: #ffffff;
+}
+
+/* Item seleccionado actualmente */
+.xp-note-item.active {
+  background: #316ac5;
+  color: #ffffff;
+}
+
+.xp-note-item-title {
+  font-weight: bold;
+  font-size: var(--xp-font-size);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* … si el texto es muy largo */
+}
+
+.xp-note-item-date {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+/* Etiqueta de prioridad */
+.xp-priority {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  align-self: flex-start;
+  font-weight: bold;
+}
+.xp-priority.alta  { background: #cc0000; color: #fff; }
+.xp-priority.media { background: #ff8c00; color: #fff; }
+.xp-priority.baja  { background: #008000; color: #fff; }
+
+
+/* ------------------------------------------------------------
+   9. PANEL DERECHO — Formulario de nota
+   ------------------------------------------------------------ */
+
+.xp-main-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Toolbar con botones de acción */
+.xp-toolbar {
+  background: var(--xp-surface-dark);
+  border-bottom: 2px solid #a0a0a0;
+  padding: 4px 8px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.xp-toolbar-btn {
+  height: var(--xp-btn-h);
+  padding: 0 10px;
+  font-family: var(--xp-font);
+  font-size: var(--xp-font-size);
+  background: var(--xp-surface);
+  border: none;
+  box-shadow: var(--xp-bevel-out);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.xp-toolbar-btn:hover {
+  background: #e8e4d8;
+}
+
+.xp-toolbar-btn:active {
+  box-shadow: var(--xp-bevel-in);
+  padding-top: 2px;  /* pequeño desplazamiento al presionar */
+}
+
+/* Separador vertical en toolbar */
+.xp-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: #a0a0a0;
+  margin: 0 4px;
+  box-shadow: 1px 0 0 #ffffff;
+}
+
+
+/* ------------------------------------------------------------
+   10. FORMULARIO DE NOTA
+   ------------------------------------------------------------
+   Los GroupBox (cuadros con título) son el elemento
+   característico de los diálogos de Windows XP.
+   ------------------------------------------------------------ */
+
+.xp-form-area {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* GroupBox: el cuadro con título flotante estilo XP */
+.xp-groupbox {
+  border: 1px solid #a0a0a0;
+  border-radius: 4px;
+  padding: 10px 10px 8px;
+  position: relative; /* necesario para el título flotante */
+  box-shadow: 1px 1px 0 #ffffff inset; /* brillo interior */
+}
+
+/* Título flotante del groupbox */
+.xp-groupbox-title {
+  position: absolute;
+  top: -8px;           /* sube el texto para que "flote" sobre el borde */
+  left: 8px;
+  background: var(--xp-surface); /* mismo fondo que la ventana */
+  padding: 0 4px;
+  font-size: var(--xp-font-size);
+  font-weight: bold;
+  color: #000080;       /* azul marino, clásico de Windows */
+}
+
+/* Grid de dos columnas para labels + inputs */
+.xp-form-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Labels del formulario */
+.xp-label {
+  font-size: var(--xp-font-size);
+  text-align: right;
+  padding-right: 6px;
+}
+
+/* Inputs y Textareas estilo XP */
+.xp-input,
+.xp-textarea,
+.xp-select {
+  font-family: var(--xp-font);
+  font-size: var(--xp-font-size);
+  padding: 2px 4px;
+  background: var(--xp-white);
+  border: none;
+  box-shadow: var(--xp-bevel-field); /* borde hundido característico */
+  outline: none;
+  width: 100%;
+}
+
+.xp-input:focus,
+.xp-textarea:focus,
+.xp-select:focus {
+  /* En XP, el campo activo tiene un borde azul sutil */
+  box-shadow: var(--xp-bevel-field), 0 0 0 1px #316ac5;
+}
+
+.xp-textarea {
+  resize: vertical; /* solo se puede redimensionar verticalmente */
+  min-height: 80px;
+}
+
+
+/* ------------------------------------------------------------
+   11. BARRA DE ESTADO (Statusbar)
+   ------------------------------------------------------------
+   La barra inferior de Windows XP con información contextual.
+   ------------------------------------------------------------ */
+
+.xp-statusbar {
+  height: 22px;
+  background: var(--xp-surface-dark);
+  border-top: 2px solid #a0a0a0;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  gap: 8px;
+  font-size: 10px;
+  box-shadow: inset 0 1px 0 #ffffff;
+}
+
+.xp-statusbar-panel {
+  padding: 0 6px;
+  border-right: 1px solid #a0a0a0;
+  box-shadow: 1px 0 0 #ffffff;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+
+/* ------------------------------------------------------------
+   12. TASKBAR (Barra de tareas inferior)
+   ------------------------------------------------------------
+   La barra azul oscura con botón Inicio y reloj.
+   Está fija al fondo de la pantalla (position: fixed).
+   ------------------------------------------------------------ */
+
+.xp-taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--xp-taskbar-h);
+  background: linear-gradient(
+    to bottom,
+    #2458a6 0%,
+    #1a3d82 50%,
+    #0a246a 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  z-index: 9999;
+  box-shadow: 0 -1px 0 #0a246a, inset 0 1px 0 #4d8fcc;
+}
+
+/* Botón Inicio verde */
+.xp-start-btn {
+  height: 26px;
+  padding: 0 12px 0 8px;
+  background: linear-gradient(to bottom, #5cb85c, #3a7d3a);
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: var(--xp-font);
+  font-size: 13px;
+  font-weight: bold;
+  font-style: italic;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 0 8px rgba(0,200,0,0.5), var(--xp-bevel-out);
+}
+
+.xp-start-btn:hover {
+  background: linear-gradient(to bottom, #6dcf6d, #4a8f4a);
+}
+
+/* Reloj en la esquina inferior derecha */
+.xp-clock {
+  color: #ffffff;
+  font-size: var(--xp-font-size);
+  padding: 2px 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 3px;
+  box-shadow: var(--xp-bevel-in);
+  min-width: 60px;
+  text-align: center;
+}
+
+
+/* ------------------------------------------------------------
+   13. GLOBO DE NOTIFICACIÓN (Balloon Tooltip)
+   ------------------------------------------------------------
+   El globo que aparece sobre la barra de tareas al disparar
+   un recordatorio. Icono XP característico.
+   ------------------------------------------------------------ */
+
+.xp-balloon {
+  position: fixed;
+  bottom: calc(var(--xp-taskbar-h) + 8px);
+  right: 12px;
+  background: #ffffc0;         /* amarillo pastel XP */
+  border: 1px solid #000000;
+  border-radius: 8px 8px 8px 0;
+  padding: 8px 12px;
+  font-size: var(--xp-font-size);
+  max-width: 280px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  z-index: 10000;
+  display: none; /* oculto por defecto, JS lo muestra */
+}
+
+.xp-balloon.visible {
+  display: block;
+  animation: balloon-in 0.2s ease-out;
+}
+
+/* Animación de entrada del globo */
+@keyframes balloon-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.xp-balloon-title {
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.xp-balloon-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  background: none;
+  border: none;
+  line-height: 1;
+}
+
+
+/* ------------------------------------------------------------
+   14. DIÁLOGO MODAL (Alert XP)
+   ------------------------------------------------------------
+   El diálogo de confirmación estilo Windows XP.
+   ------------------------------------------------------------ */
+
+.xp-overlay {
+  position: fixed;
+  inset: 0;            /* top:0 right:0 bottom:0 left:0 */
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  display: none;
+}
+
+.xp-overlay.visible {
+  display: flex;
+}
+
+.xp-dialog {
+  background: var(--xp-surface);
+  border: 2px solid var(--xp-blue-dark);
+  border-radius: 8px 8px 0 0;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+}
+
+.xp-dialog-titlebar {
+  background: linear-gradient(
+    to right,
+    var(--xp-blue-dark),
+    var(--xp-blue-mid),
+    var(--xp-blue-light)
+  );
+  padding: 4px 8px;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.xp-dialog-titlebar span {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: var(--xp-title-size);
+}
+
+.xp-dialog-body {
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.xp-dialog-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.xp-dialog-message {
+  font-size: var(--xp-font-size);
+  line-height: 1.5;
+}
+
+.xp-dialog-footer {
+  padding: 8px 16px 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+
+/* ------------------------------------------------------------
+   15. SCROLLBAR PERSONALIZADA (estilo XP)
+   ------------------------------------------------------------
+   CSS moderno para personalizar el scrollbar en Chrome/Edge.
+   Firefox usa scrollbar-color y scrollbar-width.
+   ------------------------------------------------------------ */
+
+::-webkit-scrollbar {
+  width: 16px;   /* ancho XP clásico */
+}
+
+::-webkit-scrollbar-track {
+  background: var(--xp-surface-dark);
+  box-shadow: var(--xp-bevel-in);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--xp-surface-dark);
+  box-shadow: var(--xp-bevel-out);
+  border: 1px solid #808080;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c0bdb0;
+}
+
+::-webkit-scrollbar-button {
+  background: var(--xp-surface-dark);
+  box-shadow: var(--xp-bevel-out);
+  height: 16px;
+}
+
+/* Scrollbar Firefox */
+* {
+  scrollbar-color: var(--xp-surface-dark) var(--xp-surface);
+  scrollbar-width: auto;
+}
+
+
+/* ------------------------------------------------------------
+   16. RESPONSIVE — móvil básico
+   ------------------------------------------------------------
+   En pantallas pequeñas ocultamos el sidebar
+   y la ventana ocupa toda la pantalla.
+   ------------------------------------------------------------ */
+
+@media (max-width: 640px) {
+  .xp-window {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+
+  .xp-sidebar {
+    display: none; /* en móvil ocultamos el panel lateral */
+  }
+
+  body {
+    justify-content: flex-start;
+    padding: 0;
+  }
+}
