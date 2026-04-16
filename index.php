@@ -489,9 +489,9 @@ body {
   line-height: 1.3;
 }
 
-/* ══════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    MAIN LAYOUT — 2 PANES
-══════════════════════════════════════════════ */
+══════════════════════════════════════════════════ */
 .desktop {
   height: calc(100vh - 30px);
   display: flex;
@@ -685,11 +685,24 @@ body {
 .xp-form-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .xp-form-row { display: flex; gap: 8px; }
 .xp-form-row .xp-field { flex: 1; }
+
+/* Bloque fecha/hora del recordatorio — se muestra/oculta */
+.xp-reminder-datetime {
+  background: #f0f4ff;
+  border: 1px solid #8090c0;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.xp-reminder-datetime.hidden { display: none; }
 
 .xp-priority-group {
   display: flex;
@@ -921,7 +934,7 @@ body {
 </head>
 <body>
 
-<!-- ══ DESKTOP ══════════════════════════════════ -->
+<!-- ══ DESKTOP ════════════════════════════════════════════ -->
 <div class="desktop">
   <div class="xp-window xp-app-window">
 
@@ -932,7 +945,7 @@ body {
       <div class="xp-controls">
         <button class="xp-ctrl-btn" title="Minimizar">─</button>
         <button class="xp-ctrl-btn" title="Maximizar">□</button>
-        <button class="xp-ctrl-btn close" title="Cerrar" onclick="if(confirm('¿Cerrar Calendario de Notas?')) document.body.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100vh;color:white;font-size:13px;font-family:Tahoma,sans-serif;\'>El programa fue cerrado. Recarga la página para volver.</div><div class=\'xp-taskbar\'></div>'">✕</button>
+        <button class="xp-ctrl-btn close" title="Cerrar" onclick="if(confirm('¿Cerrar Calendario de Notas?')) document.body.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100vh;color:white;font-size:13px;font-family:Tahoma,sans-serif;\'>El programa fue cerrado. Recarga la página para volver.</div>'">✕</button>
       </div>
     </div>
 
@@ -946,27 +959,15 @@ body {
 
     <!-- TOOLBAR -->
     <div class="xp-toolbar">
-      <button class="xp-btn primary" onclick="newNote()">
-        📝 Nueva nota
-      </button>
+      <button class="xp-btn primary" onclick="newNote()">📝 Nueva nota</button>
       <div class="xp-separator-v"></div>
-      <button class="xp-btn" id="saveBtn" onclick="saveCurrentNote(true)" title="Guardar (Ctrl+S)">
-        💾 Guardar
-      </button>
-      <button class="xp-btn danger" id="deleteBtn" onclick="deleteCurrentNote()" title="Eliminar nota actual">
-        🗑️ Eliminar
-      </button>
+      <button class="xp-btn" id="saveBtn" onclick="saveCurrentNote(true)" title="Guardar (Ctrl+S)">💾 Guardar</button>
+      <button class="xp-btn danger" id="deleteBtn" onclick="deleteCurrentNote()" title="Eliminar nota actual">🗑️ Eliminar</button>
       <div class="xp-separator-v"></div>
-      <button class="xp-btn" onclick="requestNotifPermission()" title="Activar notificaciones de escritorio">
-        🔔 Notificaciones
-      </button>
-      <button class="xp-btn" id="testNotifBtn" onclick="testReminderNow()" title="Probar alerta ahora">
-        🧪 Probar aviso
-      </button>
+      <button class="xp-btn" onclick="requestNotifPermission()" title="Activar notificaciones">🔔 Notificaciones</button>
+      <button class="xp-btn" id="testNotifBtn" onclick="testReminderNow()" title="Probar alerta ahora">🧪 Probar aviso</button>
       <div class="xp-separator-v"></div>
-      <button class="xp-btn" onclick="exportCurrentNote()">
-        📤 Exportar .txt
-      </button>
+      <button class="xp-btn" onclick="exportCurrentNote()">📤 Exportar .txt</button>
     </div>
 
     <!-- PANES -->
@@ -1014,7 +1015,7 @@ body {
           <div class="xp-welcome">
             <div class="xp-welcome-icon">📅</div>
             <h2>Calendario de Notas</h2>
-            <p>Crea una nueva nota con fecha, hora, título y descripción.<br>Recibirás un aviso en tu escritorio cuando llegue el momento.</p>
+            <p>Crea una nueva nota con título, descripción y recordatorio.<br>Recibe un aviso cuando llegue el momento.</p>
             <br>
             <button class="xp-btn primary" onclick="newNote()">📝 Crear primera nota</button>
           </div>
@@ -1082,9 +1083,9 @@ body {
 </div>
 
 <script>
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //   CALENDARIO DE NOTAS XP — LÓGICA PRINCIPAL
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 
 let notes = [];
 let currentId = null;
@@ -1101,7 +1102,7 @@ const CATS = [
   { id:'fitness',  label:'Fitness' },
 ];
 
-// ── STORAGE ───────────────────────────────────
+// ── STORAGE ──────────────────────────────────────
 function save() {
   try { localStorage.setItem('xp_notes', JSON.stringify(notes)); } catch(e) {}
 }
@@ -1112,15 +1113,15 @@ function load() {
     if(raw) notes = JSON.parse(raw);
     if(!notes || notes.length === 0) {
       const fromDB = <?php echo json_encode(array_map(function($n){ return [
-        'id' => (string)$n['id'],
-        'title' => $n['titulo'],
-        'content' => '',
-        'date' => $n['fecha'],
-        'time' => $n['hora'],
+        'id'       => (string)$n['id'],
+        'title'    => $n['titulo'],
+        'content'  => '',
+        'date'     => $n['fecha'],
+        'time'     => $n['hora'],
         'priority' => $n['prioridad'] ?? 'medium',
         'category' => $n['categoria'] ?? 'general',
-        'done' => false,
-        'pinned' => false,
+        'done'     => false,
+        'pinned'   => false,
         'reminder' => !empty($n['fecha'])
       ]; }, $notas ?? [])); ?>;
       if(fromDB && fromDB.length > 0) notes = fromDB;
@@ -1128,10 +1129,10 @@ function load() {
   } catch(e) { notes = []; }
 }
 
-// ── ID GEN ────────────────────────────────────
+// ── ID GEN ────────────────────────────────────────
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
-// ── CLOCK ─────────────────────────────────────
+// ── CLOCK ────────────────────────────────────────
 function updateClock() {
   const now = new Date();
   const t = now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
@@ -1144,7 +1145,7 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// ── FILTER ────────────────────────────────────
+// ── FILTER ───────────────────────────────────────
 function setFilter(f, btn) {
   filter = f;
   document.querySelectorAll('.xp-filter-btn').forEach(b => b.classList.remove('active'));
@@ -1152,7 +1153,7 @@ function setFilter(f, btn) {
   renderList();
 }
 
-// ── NOTE LIST ─────────────────────────────────
+// ── NOTE LIST ─────────────────────────────────────
 function getFiltered() {
   const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
   return notes.filter(n => {
@@ -1197,14 +1198,27 @@ function renderList() {
   }).join('');
 }
 
-// ── SELECT NOTE ───────────────────────────────
+// ── SELECT NOTE ───────────────────────────────────
 function selectNote(id) {
   currentId = id;
   renderList();
   renderEditor();
 }
 
-// ── EDITOR ────────────────────────────────────
+// ── TOGGLE FECHA/HORA (recordatorio) ─────────────
+function toggleReminderBlock(checked) {
+  const block = document.getElementById('reminderDatetimeBlock');
+  if(!block) return;
+  if(checked) {
+    block.classList.remove('hidden');
+  } else {
+    block.classList.add('hidden');
+  }
+  updateField('reminder', checked);
+}
+
+// ── EDITOR ──────────────────────────────────────
+// ORDEN: Título → Descripción → Recordatorio → Fecha/Hora → Prioridad → Categoría
 function renderEditor() {
   const body = document.getElementById('editorBody');
   const statusEl = document.getElementById('editorStatus');
@@ -1224,16 +1238,17 @@ function renderEditor() {
     return;
   }
 
-  statusEl.textContent = `Editando: ${n.title||'Sin título'} — ${n.date||''} ${n.time||''}`;
+  statusEl.textContent = `Editando: ${n.title||'Sin título'}`;
   document.getElementById('pinBtn').textContent = n.pinned ? '📌 Desfijar' : '📌 Fijar';
   document.getElementById('doneBtn').textContent = n.done ? '↩️ Desmarcar' : '✅ Marcar lista';
 
+  // Banner de alerta si el recordatorio ya venció
   const now = new Date();
-  let reminderHtml = '';
+  let reminderBanner = '';
   if(n.reminder && n.date) {
     const noteDate = new Date(n.date + (n.time ? 'T' + n.time : 'T00:00'));
     const overdue = noteDate < now && !n.done;
-    reminderHtml = `<div class="xp-reminder-box ${overdue ? 'overdue' : ''}">
+    reminderBanner = `<div class="xp-reminder-box ${overdue ? 'overdue' : ''}">
       <div class="xp-reminder-icon">${overdue ? '⚠️' : '⏰'}</div>
       <div class="xp-reminder-info">
         <div class="xp-reminder-title">${overdue ? 'Recordatorio vencido' : 'Recordatorio activo'}</div>
@@ -1242,31 +1257,54 @@ function renderEditor() {
     </div>`;
   }
 
-  const catLabel = CATS.find(c => c.id === n.category)?.label || 'General';
-  const priorityMap = {low:'🟢 Baja', medium:'🟡 Media', high:'🔴 Alta'};
+  const datetimeHidden = n.reminder ? '' : 'hidden';
 
   body.innerHTML = `
-    ${reminderHtml}
+    ${reminderBanner}
     <div class="xp-form-section">
+
+      <!-- 1. TÍTULO -->
       <div class="xp-field">
         <label class="xp-label">📝 Título</label>
         <input class="xp-input" id="fTitle" value="${escAttr(n.title||'')}"
           oninput="updateField('title',this.value)" placeholder="Título de la nota...">
       </div>
 
-      <div class="xp-form-row">
-        <div class="xp-field">
-          <label class="xp-label">📅 Fecha</label>
-          <input class="xp-input" type="date" id="fDate" value="${escAttr(n.date||'')}"
-            onchange="updateField('date',this.value)">
-        </div>
-        <div class="xp-field">
-          <label class="xp-label">🕐 Hora</label>
-          <input class="xp-input" type="time" id="fTime" value="${escAttr(n.time||'')}"
-            onchange="updateField('time',this.value)">
+      <!-- 2. DESCRIPCIÓN -->
+      <div class="xp-field">
+        <label class="xp-label">📄 Descripción</label>
+        <textarea class="xp-textarea" id="fContent" rows="6"
+          oninput="updateField('content',this.value)"
+          placeholder="Escribe aquí los detalles de la nota...">${escHtml(n.content||'')}</textarea>
+      </div>
+
+      <!-- 3. RECORDATORIO (checkbox) -->
+      <div class="xp-field">
+        <label class="xp-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" id="fReminder" ${n.reminder?'checked':''}
+            onchange="toggleReminderBlock(this.checked)">
+          ⏰ Activar recordatorio
+        </label>
+      </div>
+
+      <!-- 4. FECHA Y HORA DEL AVISO (visible solo si recordatorio activo) -->
+      <div class="xp-reminder-datetime ${datetimeHidden}" id="reminderDatetimeBlock">
+        <div style="font-size:10px;color:#4060a0;font-weight:bold;margin-bottom:2px;">📅 Fecha y hora del aviso</div>
+        <div class="xp-form-row">
+          <div class="xp-field">
+            <label class="xp-label">Fecha</label>
+            <input class="xp-input" type="date" id="fDate" value="${escAttr(n.date||'')}"
+              onchange="updateField('date',this.value)">
+          </div>
+          <div class="xp-field">
+            <label class="xp-label">Hora</label>
+            <input class="xp-input" type="time" id="fTime" value="${escAttr(n.time||'')}"
+              onchange="updateField('time',this.value)">
+          </div>
         </div>
       </div>
 
+      <!-- 5. PRIORIDAD -->
       <div class="xp-field">
         <label class="xp-label">⚡ Prioridad</label>
         <div class="xp-priority-group">
@@ -1279,6 +1317,7 @@ function renderEditor() {
         </div>
       </div>
 
+      <!-- 6. CATEGORÍA -->
       <div class="xp-field">
         <label class="xp-label">📁 Categoría</label>
         <div class="xp-cat-group">
@@ -1287,28 +1326,15 @@ function renderEditor() {
         </div>
       </div>
 
-      <div class="xp-field">
-        <label class="xp-label" style="display:flex;align-items:center;gap:6px;">
-          <input type="checkbox" ${n.reminder?'checked':''} onchange="updateField('reminder',this.checked)">
-          ⏰ Activar recordatorio en la fecha/hora indicada
-        </label>
-      </div>
-
-      <div class="xp-field">
-        <label class="xp-label">📄 Descripción / Notas</label>
-        <textarea class="xp-textarea" id="fContent" rows="8"
-          oninput="updateField('content',this.value)"
-          placeholder="Escribe aquí los detalles de la nota...">${escHtml(n.content||'')}</textarea>
-      </div>
-
-      <div style="display:flex;gap:6px;justify-content:flex-end;padding-top:4px;">
+      <!-- ACCIONES -->
+      <div style="display:flex;gap:6px;justify-content:flex-end;padding-top:4px;border-top:1px solid var(--xp-border-dark);margin-top:4px;">
         <button class="xp-btn primary" onclick="saveCurrentNote(true)">💾 Guardar</button>
         <button class="xp-btn danger" onclick="deleteCurrentNote()">🗑️ Eliminar</button>
       </div>
     </div>`;
 }
 
-// ── CRUD ──────────────────────────────────────
+// ── CRUD ──────────────────────────────────────────
 function newNote() {
   const n = {
     id: uid(),
@@ -1376,7 +1402,7 @@ function toggleDone() {
   if(n) { n.done = !n.done; save(); renderList(); renderEditor(); }
 }
 
-// ── EXPORT ────────────────────────────────────
+// ── EXPORT ───────────────────────────────────────
 function exportCurrentNote() {
   const n = notes.find(x => x.id === currentId);
   if(!n) { setStatus('⚠️ Selecciona una nota primero'); return; }
@@ -1389,13 +1415,13 @@ function exportCurrentNote() {
   setStatus('📤 Nota exportada');
 }
 
-// ── STATUS ────────────────────────────────────
+// ── STATUS ───────────────────────────────────────
 function setStatus(msg) {
   const el = document.getElementById('statusMsg');
   if(el) el.textContent = msg;
 }
 
-// ── NOTIFICATIONS ─────────────────────────────
+// ── NOTIFICATIONS ─────────────────────────────────
 function updateNotifStatus() {
   const dot = document.getElementById('notifDot');
   const lbl = document.getElementById('notifLabel');
@@ -1429,6 +1455,12 @@ function scheduleReminder(n) {
   if(diff <= 0) return;
   notifTimers[n.id] = setTimeout(() => {
     triggerReminder(n);
+    // Marcar como enviado en la API
+    fetch('api/recordatorios.php', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id: parseInt(n.id) || n.id})
+    }).catch(() => {});
   }, diff);
 }
 
@@ -1444,11 +1476,11 @@ function triggerReminder(n) {
   showModal(n);
   if(Notification.permission === 'granted') {
     new Notification('⏰ ' + n.title, {
-      body: n.date + (n.time ? ' a las ' + n.time : '') + '\n' + (n.content||'').slice(0,100),
+      body: (n.date||'') + (n.time ? ' a las ' + n.time : '') + '\n' + (n.content||'').slice(0,100),
       icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📅</text></svg>'
     });
   }
-  showBalloon(n.title, 'Recordatorio: ' + n.date + (n.time ? ' a las ' + n.time : ''), '⏰');
+  showBalloon(n.title, 'Recordatorio: ' + (n.date||'') + (n.time ? ' a las ' + n.time : ''), '⏰');
 }
 
 function testReminderNow() {
@@ -1477,7 +1509,7 @@ function snoozeReminder() {
   setStatus('🕒 Recordatorio pospuesto 5 minutos');
 }
 
-// ── BALLOON TOASTS ────────────────────────────
+// ── BALLOON TOASTS ───────────────────────────────
 function showBalloon(title, msg, icon) {
   const c = document.getElementById('balloonContainer');
   if(!c) return;
@@ -1493,14 +1525,14 @@ function showBalloon(title, msg, icon) {
   setTimeout(() => b.remove(), 6000);
 }
 
-// ── HELP ──────────────────────────────────────
+// ── HELP ─────────────────────────────────────────
 function showHelp() {
   showBalloon('Calendario de Notas XP',
-    'Crea notas con fecha y hora. Activa notificaciones para recibir avisos de escritorio.',
+    'Crea notas con título, descripción y recordatorio. Activa notificaciones para recibir avisos.',
     '❓');
 }
 
-// ── UTILS ─────────────────────────────────────
+// ── UTILS ────────────────────────────────────────
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -1508,13 +1540,13 @@ function escAttr(s) {
   return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// ── KEYBOARD SHORTCUTS ────────────────────────
+// ── KEYBOARD SHORTCUTS ────────────────────────────
 document.addEventListener('keydown', e => {
   if(e.ctrlKey && e.key === 's') { e.preventDefault(); saveCurrentNote(true); }
   if(e.ctrlKey && e.key === 'n') { e.preventDefault(); newNote(); }
 });
 
-// ── INIT ───────────────────────────────────────
+// ── INIT ──────────────────────────────────────────
 load();
 renderList();
 renderEditor();
@@ -1522,7 +1554,9 @@ scheduleAllReminders();
 updateNotifStatus();
 if(Notification.permission === 'default') {
   setTimeout(() => {
-    showBalloon('Activar notificaciones', 'Haz clic en "Notificaciones" para recibir avisos de escritorio.', '🔔');
+    showBalloon('Activar notificaciones',
+      'Haz clic en "Notificaciones" para recibir avisos de escritorio.',
+      '🔔');
   }, 2000);
 }
 </script>
