@@ -1,45 +1,30 @@
 /* ============================================================
-   BLOQUE 3 — css/xp-style.css
+   BLOQUE 3 — css/xp-style.css  (v2 — compatible con bloque-6)
    ============================================================
-   ¿Qué hace este archivo?
-     Define TODO el aspecto visual del Calendario Vintage.
-     Emula fielmente la interfaz de Windows XP (Luna theme).
-
-   Conceptos CSS que aprenderás aquí:
-     - Variables CSS (custom properties)
-     - Box model: margin, padding, border
-     - Box-shadow para efecto biselado 3D
-     - Gradientes lineales
-     - Flexbox para layouts
-     - Pseudo-elementos ::before y ::after
-     - Selectores de estado :hover, :active, :focus
-     - CSS Reset básico
+   Emula el tema Luna de Windows XP.
+   Todas las clases coinciden con index.php del bloque 6.
    ============================================================ */
 
 
 /* ------------------------------------------------------------
-   1. VARIABLES CSS (Custom Properties)
-   ------------------------------------------------------------
-   Las variables CSS permiten reutilizar valores en todo el
-   archivo. Si quieres cambiar el azul XP, solo cambias aquí
-   y se actualiza en todos lados automáticamente.
-   Se definen en :root para que sean globales.
+   1. VARIABLES
    ------------------------------------------------------------ */
 
 :root {
-  /* Colores principales Windows XP Luna (azul) */
-  --xp-blue-dark:    #0a246a;   /* Azul oscuro barra título */
-  --xp-blue-mid:     #2458a6;   /* Azul medio barra título */
-  --xp-blue-light:   #4d8fcc;   /* Azul claro barra título */
-  --xp-blue-btn:     #245edb;   /* Azul botón Inicio */
+  /* Azules Luna XP */
+  --xp-blue-dark:    #0a246a;
+  --xp-blue-mid:     #2458a6;
+  --xp-blue-light:   #4d8fcc;
 
-  /* Colores de superficie (gris XP) */
-  --xp-bg:           #3a6ea5;   /* Fondo escritorio XP */
-  --xp-surface:      #ece9d8;   /* Superficie ventanas (beige XP) */
-  --xp-surface-dark: #d4d0c8;   /* Beige oscuro (bordes, toolbars) */
+  /* Superficies */
+  --xp-bg:           #3a6ea5;   /* escritorio azul XP */
+  --xp-surface:      #ece9d8;   /* beige ventanas */
+  --xp-surface-dark: #d4d0c8;   /* beige oscuro toolbar */
   --xp-white:        #ffffff;
+  --xp-text:         #000000;
+  --xp-text-muted:   #555555;
 
-  /* Efecto biselado 3D — el sello de XP */
+  /* Bisel 3D — el sello de XP */
   --xp-bevel-out:
     inset  1px  1px 0 #ffffff,
     inset  2px  2px 0 #dfdfdf,
@@ -58,20 +43,21 @@
     inset -1px -1px 0 #ffffff,
     inset -2px -2px 0 #e0e0e0;
 
-  /* Tipografía XP */
-  --xp-font:        'Tahoma', 'Arial', sans-serif;
-  --xp-font-size:   11px;
-  --xp-title-size:  12px;
+  /* Tipografía */
+  --xp-font:       'Tahoma', 'Arial', sans-serif;
+  --xp-font-size:  11px;
+  --xp-title-size: 12px;
 
-  /* Alturas estándar de elementos XP */
+  /* Medidas fijas */
   --xp-titlebar-h:  28px;
   --xp-taskbar-h:   30px;
   --xp-btn-h:       23px;
+  --xp-left-w:      230px;   /* ancho panel izquierdo */
 }
 
 
 /* ------------------------------------------------------------
-   2. CSS RESET BÁSICO
+   2. RESET
    ------------------------------------------------------------ */
 
 *, *::before, *::after {
@@ -84,45 +70,66 @@ body {
   font-family: var(--xp-font);
   font-size: var(--xp-font-size);
   background-color: var(--xp-bg);
-  color: #000000;
+  color: var(--xp-text);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding-bottom: var(--xp-taskbar-h);
+  overflow: hidden;
+}
+
+button { cursor: pointer; font-family: var(--xp-font); }
+input, textarea, select { font-family: var(--xp-font); }
+
+
+/* ------------------------------------------------------------
+   3. DESKTOP — contenedor del escritorio
+   ------------------------------------------------------------ */
+
+.desktop {
+  width: 100%;
+  height: calc(100vh - var(--xp-taskbar-h));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
 }
 
 
 /* ------------------------------------------------------------
-   3. VENTANA PRINCIPAL
+   4. VENTANA PRINCIPAL
    ------------------------------------------------------------ */
 
 .xp-window {
-  width: 900px;
-  max-width: 97vw;
-  height: 85vh;
   background: var(--xp-surface);
   border: 2px solid var(--xp-blue-dark);
   border-radius: 8px 8px 0 0;
-  box-shadow:
-    2px 2px 8px rgba(0,0,0,0.5),
-    inset 1px 1px 0 #ffffff;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.6), inset 1px 1px 0 #ffffff;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
+/* La ventana principal ocupa casi toda la pantalla */
+.xp-app-window {
+  width: 90vw;
+  max-width: 1200px;
+  height: calc(100vh - var(--xp-taskbar-h) - 16px);
+  min-width: 700px;
+}
+
 
 /* ------------------------------------------------------------
-   4. BARRA DE TÍTULO
+   5. BARRA DE TÍTULO
    ------------------------------------------------------------ */
 
 .xp-titlebar {
   height: var(--xp-titlebar-h);
   background: linear-gradient(
     to right,
-    var(--xp-blue-dark) 0%,
+    var(--xp-blue-dark)  0%,
     var(--xp-blue-mid)  40%,
     var(--xp-blue-light) 100%
   );
@@ -132,72 +139,57 @@ body {
   padding: 0 4px 0 8px;
   border-radius: 6px 6px 0 0;
   user-select: none;
-}
-
-.xp-titlebar-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-shrink: 0;
 }
 
 .xp-titlebar-icon {
-  width: 16px;
-  height: 16px;
   font-size: 14px;
   line-height: 1;
+  margin-right: 6px;
 }
 
-.xp-titlebar-title {
+.xp-titlebar-text {
   color: #ffffff;
   font-size: var(--xp-title-size);
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  flex: 1;
 }
 
-
-/* ------------------------------------------------------------
-   5. BOTONES DE VENTANA
-   ------------------------------------------------------------ */
-
-.xp-window-controls {
+/* Botones minimize/maximize/close de la barra de título */
+.xp-controls {
   display: flex;
   gap: 2px;
+  align-items: center;
 }
 
-.xp-btn-control {
+.xp-ctrl-btn {
   width: 21px;
   height: 21px;
   border: none;
   border-radius: 3px;
-  cursor: pointer;
   font-size: 10px;
   font-weight: bold;
-  font-family: var(--xp-font);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--xp-bevel-out);
+  background: linear-gradient(to bottom, #5b9cf6, #2458a6);
+  color: #ffffff;
   transition: box-shadow 0.05s;
 }
 
-.xp-btn-min, .xp-btn-max {
-  background: linear-gradient(to bottom, #5b9cf6, #2458a6);
-  color: #ffffff;
-}
-
-.xp-btn-close {
+.xp-ctrl-btn.close {
   background: linear-gradient(to bottom, #e9a23b, #c0311b);
-  color: #ffffff;
-  font-size: 11px;
 }
 
-.xp-btn-control:active {
+.xp-ctrl-btn:active {
   box-shadow: var(--xp-bevel-in);
 }
 
 
 /* ------------------------------------------------------------
-   6. BARRA DE MENÚ
+   6. MENÚ
    ------------------------------------------------------------ */
 
 .xp-menubar {
@@ -206,6 +198,7 @@ body {
   padding: 2px 4px;
   display: flex;
   gap: 2px;
+  flex-shrink: 0;
 }
 
 .xp-menu-item {
@@ -214,6 +207,7 @@ body {
   cursor: pointer;
   font-size: var(--xp-font-size);
   border: 1px solid transparent;
+  user-select: none;
 }
 
 .xp-menu-item:hover {
@@ -224,76 +218,189 @@ body {
 
 
 /* ------------------------------------------------------------
-   7. LAYOUT PRINCIPAL (dos columnas)
+   7. TOOLBAR
    ------------------------------------------------------------ */
 
-.xp-content {
-  flex: 1;
+.xp-toolbar {
+  background: var(--xp-surface-dark);
+  border-bottom: 2px solid #a0a0a0;
+  padding: 3px 6px;
   display: flex;
-  overflow: hidden;
+  gap: 3px;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 #ffffff;
+}
+
+/* Separador vertical en la toolbar */
+.xp-separator-v {
+  width: 1px;
+  height: 18px;
+  background: #a0a0a0;
+  margin: 0 2px;
+  box-shadow: 1px 0 0 #ffffff;
+  flex-shrink: 0;
+}
+
+/* Botón XP genérico */
+.xp-btn {
+  height: var(--xp-btn-h);
+  padding: 0 8px;
+  font-family: var(--xp-font);
+  font-size: var(--xp-font-size);
+  background: var(--xp-surface);
+  border: none;
+  box-shadow: var(--xp-bevel-out);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  color: var(--xp-text);
+}
+
+.xp-btn:hover  { background: #e8e4d8; }
+.xp-btn:active { box-shadow: var(--xp-bevel-in); padding-top: 2px; }
+
+.xp-btn.primary {
+  background: linear-gradient(to bottom, #5b9cf6, #2458a6);
+  color: #ffffff;
+  font-weight: bold;
+}
+.xp-btn.primary:hover  { background: linear-gradient(to bottom, #6daaf8, #2e68b8); }
+.xp-btn.primary:active { box-shadow: var(--xp-bevel-in); }
+
+.xp-btn.danger  { color: #cc0000; }
+.xp-btn.danger:hover { background: #fdeaea; }
+
+.xp-btn.success { color: #006600; }
+
+.xp-btn-small {
+  height: 20px;
+  padding: 0 6px;
+  font-size: 10px;
 }
 
 
 /* ------------------------------------------------------------
-   8. PANEL IZQUIERDO — Sidebar
+   8. PANELES — layout dos columnas
    ------------------------------------------------------------ */
 
-.xp-sidebar {
-  width: 220px;
-  min-width: 180px;
+.xp-panes {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  min-height: 0;   /* CRÍTICO: permite que flex hijos respeten overflow */
+}
+
+
+/* ------------------------------------------------------------
+   9. PANEL IZQUIERDO
+   ------------------------------------------------------------ */
+
+.xp-left-pane {
+  width: var(--xp-left-w);
+  min-width: var(--xp-left-w);
+  max-width: var(--xp-left-w);
   background: var(--xp-white);
   border-right: 2px solid var(--xp-surface-dark);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
-.xp-sidebar-header {
+.xp-left-header {
   background: var(--xp-surface-dark);
   padding: 4px 8px;
   font-weight: bold;
   font-size: var(--xp-font-size);
   border-bottom: 1px solid #a0a0a0;
+  box-shadow: inset 0 1px 0 #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
 }
 
-.xp-sidebar-search {
+.xp-count-badge {
+  background: var(--xp-blue-mid);
+  color: #fff;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-weight: bold;
+  min-width: 18px;
+  text-align: center;
+}
+
+.xp-search-box {
   padding: 4px;
   border-bottom: 1px solid var(--xp-surface-dark);
+  flex-shrink: 0;
 }
 
-.xp-sidebar-search input {
-  width: 100%;
-  padding: 2px 4px;
+.xp-filter-bar {
+  display: flex;
+  gap: 2px;
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--xp-surface-dark);
+  background: var(--xp-surface);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.xp-filter-btn {
+  height: 18px;
+  padding: 0 5px;
+  font-size: 9px;
   font-family: var(--xp-font);
-  font-size: var(--xp-font-size);
-  box-shadow: var(--xp-bevel-field);
+  background: var(--xp-surface);
   border: none;
-  background: var(--xp-white);
+  box-shadow: var(--xp-bevel-out);
+  cursor: pointer;
 }
 
-.xp-notes-list {
+.xp-filter-btn.active {
+  box-shadow: var(--xp-bevel-in);
+  background: #c8ddf0;
+  color: var(--xp-blue-dark);
+  font-weight: bold;
+}
+
+.xp-note-list {
   flex: 1;
   overflow-y: auto;
   list-style: none;
 }
 
 .xp-note-item {
-  padding: 5px 8px;
+  padding: 5px 7px 5px 6px;
   border-bottom: 1px solid #f0ede0;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 5px;
+  position: relative;
 }
 
-.xp-note-item:hover {
-  background: #316ac5;
-  color: #ffffff;
+.xp-note-item:hover  { background: #dce8f7; }
+.xp-note-item.active { background: #316ac5; color: #fff; }
+.xp-note-item.done   { opacity: 0.6; }
+
+.xp-note-item-icon {
+  font-size: 12px;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
 }
 
-.xp-note-item.active {
-  background: #316ac5;
-  color: #ffffff;
+.xp-note-item-body {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .xp-note-item-title {
@@ -305,143 +412,245 @@ body {
 }
 
 .xp-note-item-date {
-  font-size: 10px;
-  opacity: 0.8;
+  font-size: 9px;
+  color: var(--xp-text-muted);
 }
 
-.xp-priority {
-  font-size: 9px;
-  padding: 1px 4px;
-  border-radius: 2px;
-  align-self: flex-start;
-  font-weight: bold;
+.xp-note-item.active .xp-note-item-date { color: #cde; }
+
+.xp-note-item-del {
+  opacity: 0;
+  background: none;
+  border: none;
+  font-size: 10px;
+  color: #aa0000;
+  padding: 1px 3px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
-.xp-priority.alta  { background: #cc0000; color: #fff; }
-.xp-priority.media { background: #ff8c00; color: #fff; }
-.xp-priority.baja  { background: #008000; color: #fff; }
+
+.xp-note-item:hover .xp-note-item-del  { opacity: 1; }
+.xp-note-item.active .xp-note-item-del { opacity: 1; color: #ffaaaa; }
+
+.xp-empty-list {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--xp-text-muted);
+  font-size: var(--xp-font-size);
+  line-height: 1.6;
+}
+
+.xp-empty-list-icon { font-size: 28px; margin-bottom: 8px; }
 
 
 /* ------------------------------------------------------------
-   9. PANEL DERECHO — Formulario
+   10. PANEL DERECHO — Editor
    ------------------------------------------------------------ */
 
-.xp-main-panel {
+.xp-right-pane {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
 }
 
-.xp-toolbar {
+.xp-editor-toolbar {
   background: var(--xp-surface-dark);
-  border-bottom: 2px solid #a0a0a0;
-  padding: 4px 8px;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.xp-toolbar-btn {
-  height: var(--xp-btn-h);
-  padding: 0 10px;
-  font-family: var(--xp-font);
-  font-size: var(--xp-font-size);
-  background: var(--xp-surface);
-  border: none;
-  box-shadow: var(--xp-bevel-out);
-  cursor: pointer;
+  border-bottom: 1px solid #a0a0a0;
+  padding: 3px 6px;
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 #ffffff;
 }
 
-.xp-toolbar-btn:hover  { background: #e8e4d8; }
-.xp-toolbar-btn:active {
-  box-shadow: var(--xp-bevel-in);
-  padding-top: 2px;
-}
-
-.xp-toolbar-sep {
-  width: 1px;
-  height: 20px;
-  background: #a0a0a0;
-  margin: 0 4px;
-  box-shadow: 1px 0 0 #ffffff;
+.xp-editor-body {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--xp-white);
 }
 
 
 /* ------------------------------------------------------------
-   10. FORMULARIO — GroupBox
+   11. FORMULARIO EN EL EDITOR
    ------------------------------------------------------------ */
 
-.xp-form-area {
-  flex: 1;
-  padding: 12px;
-  overflow-y: auto;
+.xp-form-section {
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.xp-groupbox {
-  border: 1px solid #a0a0a0;
-  border-radius: 4px;
-  padding: 10px 10px 8px;
-  position: relative;
-  box-shadow: 1px 1px 0 #ffffff inset;
+.xp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.xp-groupbox-title {
-  position: absolute;
-  top: -8px;
-  left: 8px;
-  background: var(--xp-surface);
-  padding: 0 4px;
-  font-size: var(--xp-font-size);
-  font-weight: bold;
-  color: #000080;
+.xp-form-row {
+  display: flex;
+  gap: 12px;
 }
 
-.xp-form-grid {
-  display: grid;
-  grid-template-columns: 100px 1fr;
-  gap: 6px;
-  align-items: center;
-}
+.xp-form-row .xp-field { flex: 1; }
 
 .xp-label {
   font-size: var(--xp-font-size);
-  text-align: right;
-  padding-right: 6px;
+  font-weight: bold;
+  color: var(--xp-text);
 }
 
 .xp-input,
-.xp-textarea,
-.xp-select {
+.xp-textarea {
   font-family: var(--xp-font);
   font-size: var(--xp-font-size);
-  padding: 2px 4px;
+  padding: 2px 5px;
   background: var(--xp-white);
   border: none;
   box-shadow: var(--xp-bevel-field);
   outline: none;
   width: 100%;
+  color: var(--xp-text);
 }
 
 .xp-input:focus,
-.xp-textarea:focus,
-.xp-select:focus {
+.xp-textarea:focus {
   box-shadow: var(--xp-bevel-field), 0 0 0 1px #316ac5;
 }
 
 .xp-textarea {
   resize: vertical;
   min-height: 80px;
+  line-height: 1.5;
+}
+
+/* GroupBox con título flotante */
+.xp-groupbox {
+  border: 1px solid #a0a0a0;
+  border-radius: 4px;
+  padding: 12px 10px 10px;
+  position: relative;
+  box-shadow: inset 1px 1px 0 #ffffff;
+  margin-top: 4px;
+}
+
+.xp-groupbox-title {
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  background: var(--xp-white);
+  padding: 0 4px;
+  font-size: var(--xp-font-size);
+  font-weight: bold;
+  color: #000080;
+}
+
+/* Botones de prioridad */
+.xp-priority-group {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.xp-priority-btn {
+  height: 20px;
+  padding: 0 7px;
+  font-size: 10px;
+  font-family: var(--xp-font);
+  background: var(--xp-surface);
+  border: none;
+  box-shadow: var(--xp-bevel-out);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.xp-priority-btn.active-baja  { background: #d4edda; box-shadow: var(--xp-bevel-in); }
+.xp-priority-btn.active-media { background: #fff3cd; box-shadow: var(--xp-bevel-in); }
+.xp-priority-btn.active-alta  { background: #f8d7da; box-shadow: var(--xp-bevel-in); }
+
+/* Botones de categoría */
+.xp-cat-group {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.xp-cat-btn {
+  height: 20px;
+  padding: 0 7px;
+  font-size: 10px;
+  font-family: var(--xp-font);
+  background: var(--xp-surface);
+  border: none;
+  box-shadow: var(--xp-bevel-out);
+  cursor: pointer;
+}
+
+.xp-cat-btn.active {
+  background: #c8ddf0;
+  box-shadow: var(--xp-bevel-in);
+  font-weight: bold;
+  color: var(--xp-blue-dark);
+}
+
+/* Recordatorio vencido */
+.xp-reminder-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  background: #fff3cd;
+  border: 1px solid #f0c040;
+  font-size: var(--xp-font-size);
+}
+
+.xp-reminder-box.overdue {
+  background: #fdeaea;
+  border-color: #cc0000;
+}
+
+.xp-reminder-icon { font-size: 16px; flex-shrink: 0; }
+.xp-reminder-title { font-weight: bold; font-size: var(--xp-font-size); }
+.xp-reminder-time  { font-size: 10px; color: var(--xp-text-muted); }
+
+/* Pantalla de bienvenida en editor vacío */
+.xp-welcome {
+  padding: 40px 30px;
+  text-align: center;
+  color: var(--xp-text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.xp-welcome-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.xp-welcome h2 {
+  font-size: 16px;
+  color: var(--xp-blue-dark);
+  font-weight: bold;
+}
+
+.xp-welcome p {
+  font-size: var(--xp-font-size);
+  line-height: 1.6;
+  max-width: 360px;
 }
 
 
 /* ------------------------------------------------------------
-   11. BARRA DE ESTADO
+   12. STATUSBAR
    ------------------------------------------------------------ */
 
 .xp-statusbar {
@@ -450,24 +659,45 @@ body {
   border-top: 2px solid #a0a0a0;
   display: flex;
   align-items: center;
-  padding: 0 6px;
-  gap: 8px;
+  gap: 0;
   font-size: 10px;
   box-shadow: inset 0 1px 0 #ffffff;
+  flex-shrink: 0;
 }
 
-.xp-statusbar-panel {
-  padding: 0 6px;
+.xp-statusbar-cell {
+  padding: 0 8px;
   border-right: 1px solid #a0a0a0;
   box-shadow: 1px 0 0 #ffffff;
   height: 100%;
   display: flex;
   align-items: center;
+  gap: 4px;
+  white-space: nowrap;
 }
+
+.xp-statusbar-cell.fill {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Punto de estado (notificaciones) */
+.xp-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.xp-status-dot.green  { background: #00aa00; box-shadow: 0 0 4px #00cc00; }
+.xp-status-dot.yellow { background: #ffaa00; box-shadow: 0 0 4px #ffcc00; }
+.xp-status-dot.red    { background: #cc0000; box-shadow: 0 0 4px #ff0000; }
 
 
 /* ------------------------------------------------------------
-   12. TASKBAR
+   13. TASKBAR
    ------------------------------------------------------------ */
 
 .xp-taskbar {
@@ -476,18 +706,14 @@ body {
   left: 0;
   right: 0;
   height: var(--xp-taskbar-h);
-  background: linear-gradient(
-    to bottom,
-    #2458a6 0%,
-    #1a3d82 50%,
-    #0a246a 100%
-  );
+  background: linear-gradient(to bottom, #2458a6 0%, #1a3d82 50%, #0a246a 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 4px;
   z-index: 9999;
   box-shadow: 0 -1px 0 #0a246a, inset 0 1px 0 #4d8fcc;
+  gap: 4px;
 }
 
 .xp-start-btn {
@@ -497,7 +723,6 @@ body {
   border: none;
   border-radius: 12px;
   color: #ffffff;
-  font-family: var(--xp-font);
   font-size: 13px;
   font-weight: bold;
   font-style: italic;
@@ -506,162 +731,179 @@ body {
   align-items: center;
   gap: 4px;
   box-shadow: 0 0 8px rgba(0,200,0,0.5), var(--xp-bevel-out);
+  flex-shrink: 0;
 }
 
 .xp-start-btn:hover {
   background: linear-gradient(to bottom, #6dcf6d, #4a8f4a);
 }
 
-.xp-clock {
+.xp-taskbar-apps {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+  padding: 0 4px;
+}
+
+.xp-taskbar-btn {
+  height: 22px;
+  padding: 0 8px;
+  background: linear-gradient(to bottom, #4d8fcc, #2458a6);
+  border: none;
+  color: #fff;
+  font-size: var(--xp-font-size);
+  box-shadow: var(--xp-bevel-out);
+  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xp-taskbar-clock {
   color: #ffffff;
   font-size: var(--xp-font-size);
   padding: 2px 8px;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 3px;
   box-shadow: var(--xp-bevel-in);
-  min-width: 60px;
+  min-width: 65px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+  flex-shrink: 0;
 }
 
 
 /* ------------------------------------------------------------
-   13. GLOBO DE NOTIFICACIÓN
+   14. BALLOON / TOAST (contenedor y globos)
    ------------------------------------------------------------ */
 
-.xp-balloon {
+.xp-balloon-container {
   position: fixed;
   bottom: calc(var(--xp-taskbar-h) + 8px);
   right: 12px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 6px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.xp-balloon {
   background: #ffffc0;
   border: 1px solid #000000;
   border-radius: 8px 8px 8px 0;
-  padding: 8px 12px;
+  padding: 8px 28px 8px 10px;
   font-size: var(--xp-font-size);
-  max-width: 280px;
-  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
-  z-index: 10000;
-  display: none;
-}
-
-.xp-balloon.visible {
-  display: block;
+  max-width: 260px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.35);
+  pointer-events: all;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
   animation: balloon-in 0.2s ease-out;
 }
 
 @keyframes balloon-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.xp-balloon-title {
-  font-weight: bold;
-  font-size: 12px;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .xp-balloon-close {
   position: absolute;
-  top: 4px;
-  right: 6px;
-  cursor: pointer;
-  font-size: 12px;
+  top: 3px;
+  right: 5px;
   background: none;
   border: none;
+  font-size: 11px;
+  cursor: pointer;
   line-height: 1;
+  color: #555;
+  padding: 1px 3px;
 }
+
+.xp-balloon-icon  { font-size: 18px; flex-shrink: 0; line-height: 1; margin-top: 1px; }
+.xp-balloon-body  { display: flex; flex-direction: column; gap: 2px; }
+.xp-balloon-title { font-weight: bold; font-size: 11px; }
+.xp-balloon-msg   { font-size: 10px; color: #555; }
 
 
 /* ------------------------------------------------------------
-   14. DIÁLOGO MODAL
+   15. MODAL DE RECORDATORIO
    ------------------------------------------------------------ */
 
-.xp-overlay {
+.xp-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0,0,0,0.35);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 10001;
 }
 
-.xp-overlay.visible {
+.xp-modal-overlay.active {
   display: flex;
 }
 
-.xp-dialog {
-  background: var(--xp-surface);
-  border: 2px solid var(--xp-blue-dark);
+.xp-alert-window {
+  width: 380px;
   border-radius: 8px 8px 0 0;
-  min-width: 300px;
-  max-width: 400px;
-  box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
 }
 
-.xp-dialog-titlebar {
-  background: linear-gradient(
-    to right,
-    var(--xp-blue-dark),
-    var(--xp-blue-mid),
-    var(--xp-blue-light)
-  );
-  padding: 4px 8px;
-  border-radius: 6px 6px 0 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.xp-dialog-titlebar span {
-  color: #ffffff;
-  font-weight: bold;
-  font-size: var(--xp-title-size);
-}
-
-.xp-dialog-body {
+.xp-alert-body {
   padding: 16px;
   display: flex;
   gap: 12px;
   align-items: flex-start;
+  background: var(--xp-surface);
 }
 
-.xp-dialog-icon   { font-size: 32px; flex-shrink: 0; }
-.xp-dialog-message { font-size: var(--xp-font-size); line-height: 1.5; }
+.xp-alert-icon    { font-size: 36px; flex-shrink: 0; }
+.xp-alert-content { flex: 1; }
+.xp-alert-content h3 { font-size: 13px; margin-bottom: 6px; }
+.xp-alert-content p  { font-size: var(--xp-font-size); color: var(--xp-text-muted); line-height: 1.5; }
 
-.xp-dialog-footer {
-  padding: 8px 16px 12px;
+.xp-alert-footer {
+  background: var(--xp-surface-dark);
+  border-top: 1px solid #a0a0a0;
+  padding: 8px 16px;
   display: flex;
-  justify-content: center;
-  gap: 8px;
+  justify-content: flex-end;
+  gap: 6px;
+  box-shadow: inset 0 1px 0 #ffffff;
 }
 
 
 /* ------------------------------------------------------------
-   15. SCROLLBAR PERSONALIZADA
+   16. SCROLLBAR
    ------------------------------------------------------------ */
 
 ::-webkit-scrollbar       { width: 16px; }
 ::-webkit-scrollbar-track { background: var(--xp-surface-dark); box-shadow: var(--xp-bevel-in); }
 ::-webkit-scrollbar-thumb { background: var(--xp-surface-dark); box-shadow: var(--xp-bevel-out); border: 1px solid #808080; }
-::-webkit-scrollbar-thumb:hover   { background: #c0bdb0; }
-::-webkit-scrollbar-button        { background: var(--xp-surface-dark); box-shadow: var(--xp-bevel-out); height: 16px; }
+::-webkit-scrollbar-thumb:hover  { background: #c0bdb0; }
+::-webkit-scrollbar-button       { background: var(--xp-surface-dark); box-shadow: var(--xp-bevel-out); height: 16px; }
 * { scrollbar-color: var(--xp-surface-dark) var(--xp-surface); scrollbar-width: auto; }
 
 
 /* ------------------------------------------------------------
-   16. RESPONSIVE
+   17. UTILIDADES
    ------------------------------------------------------------ */
 
-@media (max-width: 640px) {
-  .xp-window {
-    width: 100vw;
-    height: 100vh;
-    border-radius: 0;
-    border: none;
-  }
-  .xp-sidebar { display: none; }
-  body { justify-content: flex-start; padding: 0; }
+/* Texto truncado en una línea */
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
