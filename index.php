@@ -27,110 +27,14 @@ $nota_activa    = null;
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- NO usar width=device-width — fuerza escala móvil y aplasta el layout de escritorio -->
-    <meta name="viewport" content="width=1024">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($titulo_ventana); ?></title>
     <link rel="stylesheet" href="css/xp-style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128197;</text></svg>">
-    <style>
-        /* === ESTILOS DE EMERGENCIA: layout 2 columnas ===
-           Se ponen aquí para tener la máxima especificidad
-           y garantizar que el layout funcione independientemente
-           de cualquier conflicto en xp-style.css
-        */
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        body {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            background-color: #3a6ea5;
-            font-family: Tahoma, Arial, sans-serif;
-            font-size: 11px;
-        }
-
-        /* Escritorio: contenedor que ocupa todo excepto la taskbar */
-        .desktop {
-            width: 100vw;
-            height: calc(100vh - 30px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-
-        /* Ventana principal */
-        .xp-app-window {
-            width: calc(100vw - 20px) !important;
-            max-width: 1300px !important;
-            height: calc(100vh - 46px) !important;
-            display: flex !important;
-            flex-direction: column !important;
-            overflow: hidden !important;
-            min-height: 0 !important;
-        }
-
-        /* === LAYOUT DE 2 COLUMNAS: la parte crítica === */
-        .xp-panes {
-            display: flex !important;
-            flex-direction: row !important;
-            flex: 1 1 0 !important;
-            min-height: 0 !important;
-            overflow: hidden !important;
-            width: 100% !important;
-        }
-
-        /* Panel izquierdo: 230px fijos */
-        .xp-left-pane {
-            width: 230px !important;
-            min-width: 230px !important;
-            max-width: 230px !important;
-            flex-shrink: 0 !important;
-            flex-grow: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            overflow: hidden !important;
-            min-height: 0 !important;
-            background: #ffffff !important;
-            border-right: 2px solid #d4d0c8 !important;
-        }
-
-        /* Panel derecho: ocupa el resto */
-        .xp-right-pane {
-            flex: 1 1 0 !important;
-            min-width: 0 !important;
-            min-height: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            overflow: hidden !important;
-        }
-
-        /* El editor ocupa el espacio restante del panel derecho */
-        .xp-editor-body {
-            flex: 1 1 0 !important;
-            min-height: 0 !important;
-            overflow-y: auto !important;
-            background: #ffffff !important;
-        }
-
-        /* La lista de notas ocupa el espacio sobrante del panel izquierdo */
-        .xp-note-list {
-            flex: 1 1 0 !important;
-            min-height: 0 !important;
-            overflow-y: auto !important;
-        }
-    </style>
 </head>
 <body>
 
-<!-- ══ DESKTOP ════════════════════════════════════════ -->
+<!-- ══ DESKTOP ══════════════════════════════════ -->
 <div class="desktop">
   <div class="xp-window xp-app-window">
 
@@ -142,8 +46,8 @@ $nota_activa    = null;
         <button class="xp-ctrl-btn" title="Minimizar">─</button>
         <button class="xp-ctrl-btn" title="Maximizar">□</button>
         <button class="xp-ctrl-btn close" title="Cerrar"
-          onclick="if(confirm('\u00bfCerrar Calendario de Notas?'))
-            document.body.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100vh;color:white;font-size:13px;font-family:Tahoma,sans-serif;\'>El programa fue cerrado. Recarga la p\u00e1gina para volver.</div>'">&#x2715;</button>
+          onclick="if(confirm('¿Cerrar Calendario de Notas?'))
+            document.body.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100vh;color:white;font-size:13px;font-family:Tahoma,sans-serif;\'>El programa fue cerrado. Recarga la página para volver.</div>'">✕</button>
       </div>
     </div>
 
@@ -195,7 +99,7 @@ $nota_activa    = null;
         <div class="xp-note-list" id="noteList">
           <div class="xp-empty-list">
             <div class="xp-empty-list-icon">📂</div>
-            <p>No hay notas aún.<br>Haz clic en &quot;Nueva nota&quot;.</p>
+            <p>No hay notas aún.<br>Haz clic en "Nueva nota".</p>
           </div>
         </div>
       </div>
@@ -206,7 +110,7 @@ $nota_activa    = null;
           <button class="xp-btn xp-btn-small" id="pinBtn" onclick="togglePin()" title="Fijar/Desfijar nota">📌 Fijar</button>
           <button class="xp-btn xp-btn-small success" id="doneBtn" onclick="toggleDone()">✅ Marcar lista</button>
           <div class="xp-separator-v"></div>
-          <span style="font-size:10px; color:#555555" id="editorStatus">Sin nota seleccionada</span>
+          <span style="font-size:10px; color:var(--xp-text-muted)" id="editorStatus">Sin nota seleccionada</span>
         </div>
 
         <div class="xp-editor-body" id="editorBody">
@@ -267,7 +171,7 @@ $nota_activa    = null;
       <div class="xp-titlebar-icon">⏰</div>
       <div class="xp-titlebar-text">Recordatorio — Calendario de Notas</div>
       <div class="xp-controls">
-        <button class="xp-ctrl-btn close" onclick="closeReminderModal()">&#x2715;</button>
+        <button class="xp-ctrl-btn close" onclick="closeReminderModal()">✕</button>
       </div>
     </div>
     <div class="xp-alert-body">
